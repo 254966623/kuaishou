@@ -4,10 +4,7 @@ import android.content.Context
 import org.json.JSONObject
 import java.util.Calendar
 
-/** 词库 + 反风控参数（对应 adcleaner 的 recipes + AGENTS.md 规则）
- *  数据源 assets/rules.json：不重新打包也能改词库（改完杀进程重开服务） */
 object Rules {
-
     data class RuleSet(
         val popup: List<String>, val closeWords: List<String>, val danger: List<String>,
         val earn: List<String>, val signin: List<String>, val chest: List<String>,

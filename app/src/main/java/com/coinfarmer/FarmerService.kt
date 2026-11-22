@@ -9,18 +9,12 @@ import android.view.KeyEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import java.util.Random
 
-/**
- * 刷金币引擎（确定性层，对应 adcleaner 的 tool/fast.py）
- * 只依赖无障碍 API：读节点树 → 词库分流 → 手势滑动/点击。
- * 不联网、不读文件系统外数据、不碰支付相关节点。
- */
 class FarmerService : AccessibilityService() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val rnd = Random()
     private var running = false
-    private var mode = Mode.FEED          // FEED 刷视频 / SIGNIN 签到模式
-    private var signinDeadline = 0L
+    private var mode = Mode.FEED
     private val rules get() = Rules.current
 
     enum class Mode { FEED, SIGNIN }
@@ -34,7 +28,6 @@ class FarmerService : AccessibilityService() {
 
     override fun onDestroy() { running = false; handler.removeCallbacksAndMessages(null) }
 
-    /** 音量下键 = 紧急停止（对应桌面版的「停止」按钮） */
     override fun onKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             running = false
@@ -49,7 +42,6 @@ class FarmerService : AccessibilityService() {
     private fun tick() {
         if (!running) return
         if (Rules.nightOff()) { postLoop(30 * 60_000); return }
-        if (mode == Mode.SIGNIN && System.currentTimeMillis() > signinDeadline) mode = Mode.FEED
 
         val root = rootInActiveWindow
         if (root == null) { postLoop(5_000); return }
